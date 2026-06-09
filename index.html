@@ -7,11 +7,7 @@
 <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body {
-    height: 100%;
-    overflow: hidden;
-  }
+  html, body { height: 100%; overflow: hidden; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #f0f2f5;
@@ -23,207 +19,156 @@
 
   /* ── Sidebar ── */
   #sidebar {
-    width: 300px;
-    min-width: 300px;
+    width: 290px;
+    min-width: 290px;
     background: #fff;
     border-right: 1px solid #dde1e9;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     box-shadow: 2px 0 8px rgba(0,0,0,.06);
+    z-index: 20;
   }
-
   .sidebar-header {
-    padding: 18px 20px 14px;
+    padding: 16px 18px 12px;
     border-bottom: 1px solid #eee;
     background: #1a1a2e;
     color: white;
   }
-  .sidebar-header img { height: 28px; margin-bottom: 8px; display: block; }
-  .sidebar-header h2 { font-size: 15px; font-weight: 600; }
-  .sidebar-header p  { font-size: 12px; opacity: .7; margin-top: 3px; }
+  .sidebar-header h2 { font-size: 14px; font-weight: 700; }
+  .sidebar-header p  { font-size: 11px; opacity: .65; margin-top: 2px; }
 
-  .tabs {
-    display: flex;
-    border-bottom: 1px solid #eee;
-  }
+  .tabs { display: flex; border-bottom: 1px solid #eee; }
   .tab-btn {
-    flex: 1;
-    padding: 9px 2px;
-    font-size: 11px;
-    font-weight: 500;
-    border: none;
-    background: none;
-    cursor: pointer;
-    color: #888;
-    border-bottom: 2px solid transparent;
-    transition: all .15s;
+    flex: 1; padding: 9px 3px; font-size: 11px; font-weight: 600;
+    border: none; background: none; cursor: pointer;
+    color: #999; border-bottom: 2px solid transparent; transition: all .15s;
   }
   .tab-btn.active { color: #2471A3; border-bottom-color: #2471A3; }
-  .tab-btn.tab-edit.active { color: #7D3C98; border-bottom-color: #7D3C98; }
 
-  #edit-hint {
-    padding: 28px 20px;
-    text-align: center;
-    color: #aaa;
-    font-size: 13px;
-    line-height: 1.6;
-  }
-  #edit-hint .edit-icon { font-size: 28px; margin-bottom: 8px; }
-
-  .tab-panel { display: none; padding: 16px; }
+  .tab-panel { display: none; padding: 14px; }
   .tab-panel.active { display: block; }
 
-  .form-group { margin-bottom: 12px; }
-  label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 4px; }
-  input[type=text], select, textarea {
-    width: 100%;
-    padding: 7px 10px;
-    border: 1px solid #d0d5dd;
-    border-radius: 6px;
-    font-size: 13px;
-    color: #1a1a2e;
-    background: #fafafa;
-    transition: border .15s;
+  .form-group { margin-bottom: 11px; }
+  label { display: block; font-size: 11px; font-weight: 700; color: #555; margin-bottom: 3px; text-transform: uppercase; letter-spacing: .04em; }
+  input[type=text], input[type=email], select, textarea {
+    width: 100%; padding: 7px 9px; border: 1px solid #d0d5dd;
+    border-radius: 6px; font-size: 12px; color: #1a1a2e;
+    background: #fafafa; font-family: inherit; transition: border .15s;
+    resize: vertical;
   }
-  input[type=text]:focus, select:focus {
-    outline: none;
-    border-color: #2471A3;
-    background: #fff;
-  }
-
-  .checkbox-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: #444;
-    cursor: pointer;
-  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #2471A3; background: #fff; }
+  .checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #444; cursor: pointer; }
   .checkbox-row input { width: auto; }
 
-  .btn {
-    width: 100%;
-    padding: 8px 14px;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background .15s, transform .1s;
-  }
-  .btn:active { transform: scale(.98); }
-  .btn-primary { background: #2471A3; color: white; }
-  .btn-primary:hover { background: #1A5276; }
-  .btn-danger  { background: #fff; color: #c0392b; border: 1px solid #c0392b; margin-top: 8px; }
-  .btn-danger:hover  { background: #fdf2f2; }
-  .btn-secondary { background: #f5f5f5; color: #555; border: 1px solid #ddd; margin-top: 8px; }
-  .btn-secondary:hover { background: #eee; }
+  .btn { width: 100%; padding: 8px 14px; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: background .15s; }
+  .btn-primary  { background: #2471A3; color: white; }
+  .btn-primary:hover  { background: #1A5276; }
+  .btn-danger   { background: #fff; color: #c0392b; border: 1px solid #c0392b; margin-top: 7px; }
+  .btn-danger:hover   { background: #fdf2f2; }
+  .btn-secondary { background: #f5f5f5; color: #555; border: 1px solid #ddd; margin-top: 7px; }
 
-  .msg { font-size: 12px; padding: 6px 10px; border-radius: 5px; margin-top: 8px; display: none; }
+  .msg { font-size: 11px; padding: 5px 9px; border-radius: 5px; margin-top: 7px; display: none; }
   .msg.success { background: #e8f8f0; color: #1e8449; }
   .msg.error   { background: #fdf2f2; color: #c0392b; }
 
-  .legend { padding: 14px 16px; border-top: 1px solid #eee; font-size: 12px; }
-  .legend h4 { font-size: 12px; font-weight: 700; color: #555; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .05em; }
-  .legend-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
-  .dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .legend { padding: 12px 14px; border-top: 1px solid #eee; font-size: 11px; margin-top: auto; }
+  .legend h4 { font-size: 10px; font-weight: 700; color: #999; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; }
+  .legend-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .dot { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
 
-  /* ── Main area ── */
-  #main {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+  /* ── Main ── */
+  #main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; position: relative; }
 
   #topbar {
-    background: #fff;
-    border-bottom: 1px solid #dde1e9;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    background: #fff; border-bottom: 1px solid #dde1e9;
+    padding: 9px 18px; display: flex; align-items: center;
+    justify-content: space-between; gap: 10px; flex-shrink: 0;
   }
-  #topbar h1 { font-size: 16px; font-weight: 700; color: #1a1a2e; }
-  #topbar .subtitle { font-size: 12px; color: #888; }
+  #topbar h1 { font-size: 14px; font-weight: 700; color: #1a1a2e; }
+  #topbar .subtitle { font-size: 11px; color: #999; }
 
-  .toolbar-btns { display: flex; gap: 8px; }
+  .toolbar-btns { display: flex; gap: 6px; flex-shrink: 0; }
   .tb-btn {
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: 500;
-    border: 1px solid #d0d5dd;
-    border-radius: 6px;
-    background: #fff;
-    cursor: pointer;
-    color: #444;
-    transition: all .15s;
+    padding: 5px 10px; font-size: 11px; font-weight: 600;
+    border: 1px solid #d0d5dd; border-radius: 5px;
+    background: #fff; cursor: pointer; color: #555; transition: all .15s;
   }
-  .tb-btn:hover { background: #f0f2f5; border-color: #aaa; }
+  .tb-btn:hover { background: #f0f2f5; }
   .tb-btn.active { background: #2471A3; color: white; border-color: #2471A3; }
 
-  #network {
-    flex: 1;
-    min-height: 0;
-    background: #fff;
-    position: relative;
-    overflow: hidden;
-  }
+  #network { flex: 1; min-height: 0; background: #fff; position: relative; overflow: hidden; }
 
   #info-bar {
-    position: absolute;
-    bottom: 12px;
-    left: 16px;
-    background: rgba(255,255,255,.92);
-    border: 1px solid #dde1e9;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 12px;
-    color: #555;
-    max-width: 340px;
+    position: absolute; bottom: 10px; left: 14px;
+    background: rgba(255,255,255,.93); border: 1px solid #dde1e9;
+    border-radius: 7px; padding: 6px 12px; font-size: 11px; color: #666;
+    max-width: 320px; z-index: 5; pointer-events: none;
     backdrop-filter: blur(4px);
-    pointer-events: none;
-    z-index: 10;
   }
-  #info-bar b { color: #1a1a2e; }
+
+  /* ── Edit Drawer ── */
+  #edit-drawer {
+    position: absolute; top: 0; right: 0; bottom: 0;
+    width: 300px;
+    background: #fff;
+    border-left: 1px solid #dde1e9;
+    box-shadow: -4px 0 20px rgba(0,0,0,.1);
+    display: flex; flex-direction: column;
+    transform: translateX(100%);
+    transition: transform .25s cubic-bezier(.4,0,.2,1);
+    z-index: 30;
+    overflow-y: auto;
+  }
+  #edit-drawer.open { transform: translateX(0); }
+
+  .drawer-header {
+    padding: 14px 16px 12px;
+    background: #7D3C98;
+    color: white;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .drawer-header h3 { font-size: 13px; font-weight: 700; }
+  .drawer-header p  { font-size: 11px; opacity: .75; margin-top: 1px; }
+  .drawer-close {
+    background: rgba(255,255,255,.2); border: none; color: white;
+    width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+    font-size: 16px; line-height: 1; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .drawer-close:hover { background: rgba(255,255,255,.3); }
+  .drawer-body { padding: 16px; flex: 1; }
+  .drawer-footer { padding: 12px 16px; border-top: 1px solid #eee; }
 
   #stats-bar {
-    background: #fff;
-    border-top: 1px solid #dde1e9;
-    display: flex;
-    padding: 8px 20px;
-    gap: 24px;
+    background: #fff; border-top: 1px solid #dde1e9;
+    display: flex; padding: 7px 18px; gap: 20px; flex-shrink: 0;
   }
-  .stat { font-size: 12px; color: #888; }
-  .stat b { color: #1a1a2e; font-size: 14px; }
+  .stat { font-size: 11px; color: #999; }
+  .stat b { color: #1a1a2e; font-size: 13px; }
 
-  /* ── Scrollbar ── */
   #sidebar::-webkit-scrollbar { width: 4px; }
   #sidebar::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 4px; }
+  #edit-drawer::-webkit-scrollbar { width: 4px; }
+  #edit-drawer::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 4px; }
 
-  /* ── Responsive ── */
-  @media (max-width: 640px) {
-    #sidebar { display: none; }
-  }
+  @media (max-width: 640px) { #sidebar { display: none; } }
 </style>
 </head>
 <body>
 
-<!-- ── SIDEBAR ────────────────────────────────────────────── -->
+<!-- ── SIDEBAR ───────────────────────────────────────────── -->
 <aside id="sidebar">
   <div class="sidebar-header">
     <h2>Diebold Nixdorf</h2>
-    <p>Relationship Map</p>
+    <p>Relationship Map &nbsp;·&nbsp; Click any node to edit</p>
   </div>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('add', this)">+ Person</button>
-    <button class="tab-btn" onclick="switchTab('connect', this)">+ Link</button>
-    <button class="tab-btn" onclick="switchTab('remove', this)">Remove</button>
-    <button class="tab-btn tab-edit" id="tab-edit-btn" onclick="switchTab('edit', this)">✏ Edit</button>
+    <button class="tab-btn active" id="tab-btn-add"    onclick="switchTab('add')">+ Person</button>
+    <button class="tab-btn"        id="tab-btn-connect" onclick="switchTab('connect')">+ Link</button>
+    <button class="tab-btn"        id="tab-btn-remove"  onclick="switchTab('remove')">Remove</button>
   </div>
 
   <!-- Add Person -->
@@ -251,6 +196,14 @@
       <input type="text" id="p-location" placeholder="e.g. Germany, UK, India">
     </div>
     <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="p-email" placeholder="e.g. jane@dieboldnixdorf.com">
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="p-notes" rows="3" placeholder="Key notes, talking points..."></textarea>
+    </div>
+    <div class="form-group">
       <label class="checkbox-row">
         <input type="checkbox" id="p-new" checked>
         Mark as NEW contact
@@ -260,21 +213,21 @@
     <div id="add-msg" class="msg"></div>
   </div>
 
-  <!-- Add Relationship -->
+  <!-- Add Link -->
   <div id="tab-connect" class="tab-panel">
     <div class="form-group">
-      <label>From (source)</label>
+      <label>From</label>
       <select id="r-from"></select>
     </div>
     <div class="form-group">
-      <label>To (target)</label>
+      <label>To</label>
       <select id="r-to"></select>
     </div>
     <div class="form-group">
       <label>Relationship label</label>
       <input type="text" id="r-label" value="reports to">
     </div>
-    <button class="btn btn-primary" onclick="addRelationship()">Add Relationship</button>
+    <button class="btn btn-primary" onclick="addRelationship()">Add Link</button>
     <div id="rel-msg" class="msg"></div>
   </div>
 
@@ -285,38 +238,65 @@
       <select id="del-person"></select>
     </div>
     <button class="btn btn-danger" onclick="removePerson()">Remove Person</button>
-
-    <hr style="margin:16px 0;border:none;border-top:1px solid #eee;">
-
+    <hr style="margin:14px 0;border:none;border-top:1px solid #eee;">
     <div class="form-group">
-      <label>Remove Relationship</label>
+      <label>Remove Link</label>
       <select id="del-edge"></select>
     </div>
-    <button class="btn btn-danger" onclick="removeRelationship()">Remove Relationship</button>
-
-    <hr style="margin:16px 0;border:none;border-top:1px solid #eee;">
+    <button class="btn btn-danger" onclick="removeRelationship()">Remove Link</button>
+    <hr style="margin:14px 0;border:none;border-top:1px solid #eee;">
     <button class="btn btn-secondary" onclick="resetAll()">Reset to Default</button>
     <div id="rem-msg" class="msg"></div>
   </div>
 
-  <!-- Edit Person -->
-  <div id="tab-edit" class="tab-panel">
-    <div id="edit-hint">
-      <div class="edit-icon">👆</div>
-      Click any person on the map to edit their details.
+  <div class="legend">
+    <h4>Legend</h4>
+    <div class="legend-row"><div class="dot" style="background:#C0392B"></div> C-Level</div>
+    <div class="legend-row"><div class="dot" style="background:#2471A3"></div> VP</div>
+    <div class="legend-row"><div class="dot" style="background:#1E8449"></div> Director</div>
+    <div class="legend-row"><div class="dot" style="background:#7D3C98"></div> Manager / Sr PM</div>
+    <div class="legend-row"><div class="dot" style="background:#D4AC0D"></div> Other</div>
+    <div style="margin-top:7px;font-size:10px;color:#bbb;">⭐ = NEW &nbsp;·&nbsp; Click node to edit &nbsp;·&nbsp; Drag to move</div>
+  </div>
+</aside>
+
+<!-- ── MAIN ──────────────────────────────────────────────── -->
+<div id="main">
+  <div id="topbar">
+    <div>
+      <h1>Diebold Nixdorf — Relationship Map</h1>
+      <div class="subtitle">Click any person to view &amp; edit details</div>
     </div>
-    <div id="edit-form" style="display:none;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <span style="font-size:12px;font-weight:700;color:#7D3C98;" id="edit-title-label">Editing</span>
-        <button onclick="deselectEdit()" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:18px;line-height:1;" title="Clear selection">&times;</button>
+    <div class="toolbar-btns">
+      <button class="tb-btn" onclick="fitView()">Fit View</button>
+      <button class="tb-btn" id="btn-physics" onclick="togglePhysics()">Physics ON</button>
+      <button class="tb-btn" onclick="setHierarchical()">Hierarchical</button>
+      <button class="tb-btn" onclick="setFreeLayout()">Free Layout</button>
+    </div>
+  </div>
+
+  <div id="network">
+    <div id="info-bar">Click any person to view &amp; edit &nbsp;·&nbsp; Drag to rearrange</div>
+  </div>
+
+  <!-- ── Edit Drawer ── -->
+  <div id="edit-drawer">
+    <div class="drawer-header">
+      <div>
+        <h3 id="drawer-name">Person Details</h3>
+        <p id="drawer-subtitle">Click Save to apply changes</p>
       </div>
+      <button class="drawer-close" onclick="closeDrawer()" title="Close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <input type="hidden" id="e-id">
       <div class="form-group">
         <label>Full Name *</label>
         <input type="text" id="e-name">
       </div>
       <div class="form-group">
         <label>Title / Role</label>
-        <input type="text" id="e-title">
+        <input type="text" id="e-title" placeholder="e.g. VP of Sales">
       </div>
       <div class="form-group">
         <label>Level</label>
@@ -333,82 +313,61 @@
         <input type="text" id="e-location" placeholder="e.g. Germany, UK, India">
       </div>
       <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="e-email" placeholder="e.g. name@dieboldnixdorf.com">
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="e-notes" rows="4" placeholder="Key notes, talking points, context..."></textarea>
+      </div>
+      <div class="form-group">
         <label class="checkbox-row">
           <input type="checkbox" id="e-new">
           Mark as NEW contact
         </label>
       </div>
+    </div>
+    <div class="drawer-footer">
       <button class="btn btn-primary" onclick="savePerson()">Save Changes</button>
       <div id="edit-msg" class="msg"></div>
     </div>
   </div>
 
-  <!-- Legend -->
-  <div class="legend" style="margin-top:auto;">
-    <h4>Legend</h4>
-    <div class="legend-row"><div class="dot" style="background:#C0392B"></div> C-Level</div>
-    <div class="legend-row"><div class="dot" style="background:#2471A3"></div> VP</div>
-    <div class="legend-row"><div class="dot" style="background:#1E8449"></div> Director</div>
-    <div class="legend-row"><div class="dot" style="background:#7D3C98"></div> Manager / Sr PM</div>
-    <div class="legend-row"><div class="dot" style="background:#D4AC0D"></div> Other</div>
-    <div style="margin-top:8px;font-size:11px;color:#999;">⭐ = NEW contact &nbsp;·&nbsp; Drag nodes to rearrange</div>
-  </div>
-</aside>
-
-<!-- ── MAIN ───────────────────────────────────────────────── -->
-<div id="main">
-  <div id="topbar">
-    <div>
-      <h1>Diebold Nixdorf — Relationship Map</h1>
-      <div class="subtitle">Drag nodes to rearrange · Use sidebar to add or remove people</div>
-    </div>
-    <div class="toolbar-btns">
-      <button class="tb-btn" onclick="fitView()">Fit View</button>
-      <button class="tb-btn" id="btn-physics" onclick="togglePhysics()">Physics ON</button>
-      <button class="tb-btn" onclick="setHierarchical()">Hierarchical</button>
-      <button class="tb-btn" onclick="setFreeLayout()">Free Layout</button>
-    </div>
-  </div>
-
-  <div id="network" style="position:relative;">
-    <div id="info-bar">Click a node to see details &nbsp;·&nbsp; Drag to rearrange</div>
-  </div>
-
   <div id="stats-bar">
     <div class="stat">People: <b id="stat-people">0</b></div>
-    <div class="stat">NEW contacts: <b id="stat-new">0</b></div>
-    <div class="stat">Relationships: <b id="stat-edges">0</b></div>
+    <div class="stat">NEW: <b id="stat-new">0</b></div>
+    <div class="stat">Links: <b id="stat-edges">0</b></div>
     <div class="stat">Regions: <b id="stat-regions">0</b></div>
   </div>
 </div>
 
 <script>
-// ── DATA ──────────────────────────────────────────────────────────────────────
-const COLORS = {
+// ── DATA ─────────────────────────────────────────────────────────────────────
+var COLORS = {
   clevel:   { bg: '#C0392B', border: '#922B21', text: '#fff' },
   vp:       { bg: '#2471A3', border: '#1A5276', text: '#fff' },
   director: { bg: '#1E8449', border: '#145A32', text: '#fff' },
   manager:  { bg: '#7D3C98', border: '#6C3483', text: '#fff' },
-  other:    { bg: '#D4AC0D', border: '#B7950B', text: '#1a1a1a' },
+  other:    { bg: '#D4AC0D', border: '#B7950B', text: '#111' },
 };
 
-const DEFAULT_PEOPLE = [
-  { id:1,  name:'Raj Singh',     title:'CIO',                                           group:'clevel',   isNew:true,  location:'' },
-  { id:2,  name:'Andy Zosel',    title:'VP, Chief Product & Technology Officer (CPTO)', group:'vp',       isNew:true,  location:'' },
-  { id:3,  name:'Arvin Jawa',    title:'VP, Global Retail Strategy and Marketing',      group:'vp',       isNew:false, location:'' },
-  { id:4,  name:'Michele Riley', title:'VP Global Software and Services Delivery',      group:'vp',       isNew:false, location:'' },
-  { id:5,  name:'Jerome Amara',  title:'VP Banking Automation Solutions',               group:'vp',       isNew:false, location:'' },
-  { id:6,  name:'Michael Engel', title:'VP Software, Managed Services and R&D',         group:'vp',       isNew:false, location:'Germany' },
-  { id:7,  name:'Bruce Diesel',  title:'Director, Product Mgmt – Branch & Cash Auto.',  group:'director', isNew:false, location:'' },
-  { id:8,  name:'Ken',           title:'VP',                                            group:'vp',       isNew:false, location:'' },
-  { id:9,  name:'Bruce (Sr PM)', title:'Senior Product Manager',                        group:'manager',  isNew:false, location:'' },
-  { id:10, name:'Wolfgang',      title:'Technical Lead',                                group:'manager',  isNew:false, location:'Germany' },
-  { id:11, name:'Bruce (UK)',    title:'UK Champion',                                   group:'manager',  isNew:false, location:'UK' },
-  { id:12, name:'Kiru',          title:'India Team',                                    group:'manager',  isNew:false, location:'India' },
-  { id:13, name:'Jomy',          title:'Manager, India – BVA Discussion',               group:'manager',  isNew:false, location:'India' },
+var DEFAULT_PEOPLE = [
+  { id:1,  name:'Raj Singh',     title:'CIO',                                           group:'clevel',   isNew:true,  location:'',       email:'', notes:'' },
+  { id:2,  name:'Andy Zosel',    title:'VP, Chief Product & Technology Officer (CPTO)', group:'vp',       isNew:true,  location:'',       email:'', notes:'' },
+  { id:3,  name:'Arvin Jawa',    title:'VP, Global Retail Strategy and Marketing',      group:'vp',       isNew:false, location:'',       email:'', notes:'' },
+  { id:4,  name:'Michele Riley', title:'VP Global Software and Services Delivery',      group:'vp',       isNew:false, location:'',       email:'', notes:'Reports to Andy (CPTO)' },
+  { id:5,  name:'Jerome Amara',  title:'VP Banking Automation Solutions',               group:'vp',       isNew:false, location:'',       email:'', notes:'' },
+  { id:6,  name:'Michael Engel', title:'VP Software, Managed Services and R&D',         group:'vp',       isNew:false, location:'Germany',email:'', notes:'' },
+  { id:7,  name:'Bruce Diesel',  title:'Director, Product Mgmt – Branch & Cash Auto.',  group:'director', isNew:false, location:'',       email:'', notes:'' },
+  { id:8,  name:'Ken',           title:'VP',                                            group:'vp',       isNew:false, location:'',       email:'', notes:'Conversation rolls to CIO' },
+  { id:9,  name:'Bruce (Sr PM)', title:'Senior Product Manager',                        group:'manager',  isNew:false, location:'',       email:'', notes:'' },
+  { id:10, name:'Wolfgang',      title:'Technical Lead',                                group:'manager',  isNew:false, location:'Germany',email:'', notes:'Technical contact, reports to Michael' },
+  { id:11, name:'Bruce (UK)',    title:'UK Champion',                                   group:'manager',  isNew:false, location:'UK',     email:'', notes:'Champion up to Michael (Germany)' },
+  { id:12, name:'Kiru',          title:'India Team',                                    group:'manager',  isNew:false, location:'India',  email:'', notes:'Reports to Jomy' },
+  { id:13, name:'Jomy',          title:'Manager, India',                                group:'manager',  isNew:false, location:'India',  email:'', notes:'Include in BVA discussion' },
 ];
 
-const DEFAULT_LINKS = [
+var DEFAULT_LINKS = [
   { id:1, from:2,  to:1,  label:'reports to' },
   { id:2, from:4,  to:2,  label:'reports to' },
   { id:3, from:10, to:6,  label:'reports to' },
@@ -416,65 +375,66 @@ const DEFAULT_LINKS = [
   { id:5, from:12, to:13, label:'reports to' },
 ];
 
-// ── STATE (localStorage-backed) ───────────────────────────────────────────────
+// ── STATE ────────────────────────────────────────────────────────────────────
 function loadState() {
   try {
-    const s = localStorage.getItem('dn_map_v2');
+    var s = localStorage.getItem('dn_map_v3');
     if (s) return JSON.parse(s);
   } catch(e) {}
-  return { people: JSON.parse(JSON.stringify(DEFAULT_PEOPLE)), links: JSON.parse(JSON.stringify(DEFAULT_LINKS)), nextId: 14, nextEdgeId: 6 };
-}
-
-function saveState() {
-  try {
-    localStorage.setItem('dn_map_v2', JSON.stringify(state));
-  } catch(e) {}
-}
-
-let state = loadState();
-
-// ── VIS.JS SETUP ──────────────────────────────────────────────────────────────
-function buildNode(p) {
-  const c = COLORS[p.group] || COLORS.other;
-  const label = (p.isNew ? '⭐ ' : '') + p.name + (p.location ? '\n📍 ' + p.location : '');
-  const tooltip = `<div style="padding:6px 10px;font-size:13px;line-height:1.6;max-width:220px;">
-    <b>${p.name}</b><br>
-    <span style="color:#666">${p.title || '—'}</span>
-    ${p.location ? '<br>📍 ' + p.location : ''}
-    ${p.isNew ? '<br><span style="color:#e67e22;font-weight:600">⭐ NEW Contact</span>' : ''}
-  </div>`;
   return {
-    id: p.id,
-    label,
-    title: tooltip,
+    people: JSON.parse(JSON.stringify(DEFAULT_PEOPLE)),
+    links:  JSON.parse(JSON.stringify(DEFAULT_LINKS)),
+    nextId: 14, nextEdgeId: 6
+  };
+}
+function saveState() {
+  try { localStorage.setItem('dn_map_v3', JSON.stringify(state)); } catch(e) {}
+}
+var state = loadState();
+
+// ── VIS HELPERS ──────────────────────────────────────────────────────────────
+function buildNode(p) {
+  var c = COLORS[p.group] || COLORS.other;
+  var label = (p.isNew ? '⭐ ' : '') + p.name + (p.location ? '\n📍 ' + p.location : '');
+  var tip = '<div style="padding:8px 12px;font-size:12px;line-height:1.7;max-width:240px;">'
+    + '<b style="font-size:13px;">' + esc(p.name) + '</b><br>'
+    + '<span style="color:#666;">' + esc(p.title || '—') + '</span>';
+  if (p.location) tip += '<br>📍 ' + esc(p.location);
+  if (p.email)    tip += '<br>✉ <a href="mailto:' + esc(p.email) + '" style="color:#2471A3;">' + esc(p.email) + '</a>';
+  if (p.notes)    tip += '<hr style="margin:5px 0;border:none;border-top:1px solid #eee;"><span style="color:#555;font-style:italic;">' + esc(p.notes) + '</span>';
+  if (p.isNew)    tip += '<br><b style="color:#e67e22;">⭐ NEW Contact</b>';
+  tip += '</div>';
+  return {
+    id: p.id, label: label, title: tip,
     color: { background: c.bg, border: c.border, highlight: { background: c.bg, border: '#000' } },
-    font: { color: c.text, size: 13, face: '-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' },
-    shape: 'box',
-    margin: 10,
-    widthConstraint: { minimum: 140, maximum: 220 },
+    font: { color: c.text, size: 13 },
+    shape: 'box', margin: 10,
+    widthConstraint: { minimum: 130, maximum: 210 },
     shadow: { enabled: true, color: 'rgba(0,0,0,0.12)', size: 5, x: 2, y: 2 },
   };
 }
 
 function buildEdge(l) {
   return {
-    id: l.id,
-    from: l.from,
-    to: l.to,
-    label: l.label,
+    id: l.id, from: l.from, to: l.to, label: l.label,
     arrows: 'to',
-    color: { color: '#999', highlight: '#333' },
+    color: { color: '#999', highlight: '#444' },
     font: { size: 11, color: '#666', align: 'middle', background: '#fff' },
     smooth: { type: 'curvedCW', roundness: 0.15 },
   };
 }
 
-const container = document.getElementById('network');
-const nodesDS = new vis.DataSet(state.people.map(buildNode));
-const edgesDS = new vis.DataSet(state.links.map(buildEdge));
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
-let physicsOn = true;
-const network = new vis.Network(container, { nodes: nodesDS, edges: edgesDS }, {
+// ── NETWORK ──────────────────────────────────────────────────────────────────
+var container = document.getElementById('network');
+var nodesDS   = new vis.DataSet(state.people.map(buildNode));
+var edgesDS   = new vis.DataSet(state.links.map(buildEdge));
+var physicsOn = true;
+
+var network = new vis.Network(container, { nodes: nodesDS, edges: edgesDS }, {
   nodes: { borderWidth: 2 },
   edges: { width: 1.5 },
   physics: {
@@ -482,54 +442,107 @@ const network = new vis.Network(container, { nodes: nodesDS, edges: edgesDS }, {
     barnesHut: { gravitationalConstant: -8000, centralGravity: 0.3, springLength: 180, springConstant: 0.04, damping: 0.09 },
     stabilization: { iterations: 150 },
   },
-  interaction: { dragNodes: true, dragView: true, zoomView: true, hover: true, tooltipDelay: 200 },
+  interaction: { dragNodes: true, dragView: true, zoomView: true, hover: true, tooltipDelay: 300 },
   layout: { improvedLayout: true },
 });
 
-network.on('stabilizationIterationsDone', () => {
+network.on('stabilizationIterationsDone', function() {
   network.setOptions({ physics: { enabled: false } });
   physicsOn = false;
   document.getElementById('btn-physics').textContent = 'Physics OFF';
   document.getElementById('btn-physics').classList.remove('active');
 });
 
-var currentEditId = null;
-
 network.on('click', function(params) {
-  var bar = document.getElementById('info-bar');
   if (params.nodes.length > 0) {
+    openDrawer(params.nodes[0]);
+  } else {
+    closeDrawer();
+  }
+  updateInfoBar(params);
+});
+
+function updateInfoBar(params) {
+  var bar = document.getElementById('info-bar');
+  if (params && params.nodes.length > 0) {
     var nid = params.nodes[0];
     var p = state.people.find(function(x) { return x.id === nid; });
-    var connEdges = network.getConnectedEdges(nid).map(function(eid) {
+    var edges = network.getConnectedEdges(nid).map(function(eid) {
       var e = state.links.find(function(x) { return x.id === eid; });
       if (!e) return null;
       var other = state.people.find(function(x) { return x.id === (e.from === nid ? e.to : e.from); });
       var dir = e.from === nid ? '→' : '←';
       return dir + ' <b>' + (other ? other.name : '?') + '</b> <em>(' + e.label + ')</em>';
     }).filter(Boolean);
-    bar.innerHTML = '<b>' + (p ? p.name : '?') + '</b>' + (p && p.title ? ' · ' + p.title : '') + (connEdges.length ? '<br>' + connEdges.join(' &nbsp; ') : '');
-    // Open edit panel
-    openEditPanel(nid);
+    bar.innerHTML = '<b>' + (p ? p.name : '?') + '</b>' + (edges.length ? ' &nbsp;·&nbsp; ' + edges.join(' &nbsp; ') : '');
   } else {
-    bar.innerHTML = 'Click a node to see details &nbsp;·&nbsp; Drag to rearrange';
+    bar.innerHTML = 'Click any person to view &amp; edit &nbsp;·&nbsp; Drag to rearrange';
   }
-});
+}
 
-updateStats();
+window.addEventListener('load', function() { network.fit({ animation: false }); });
 
-// ── TOOLBAR ───────────────────────────────────────────────────────────────────
+// ── EDIT DRAWER ──────────────────────────────────────────────────────────────
+function openDrawer(id) {
+  var p = state.people.find(function(x) { return x.id === id; });
+  if (!p) return;
+  document.getElementById('e-id').value       = id;
+  document.getElementById('e-name').value     = p.name;
+  document.getElementById('e-title').value    = p.title    || '';
+  document.getElementById('e-level').value    = p.group    || 'vp';
+  document.getElementById('e-location').value = p.location || '';
+  document.getElementById('e-email').value    = p.email    || '';
+  document.getElementById('e-notes').value    = p.notes    || '';
+  document.getElementById('e-new').checked    = !!p.isNew;
+  document.getElementById('drawer-name').textContent     = p.name;
+  document.getElementById('drawer-subtitle').textContent = p.title || 'Click Save to apply changes';
+  document.getElementById('edit-msg').style.display = 'none';
+  document.getElementById('edit-drawer').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('edit-drawer').classList.remove('open');
+  network.unselectAll();
+  updateInfoBar(null);
+}
+
+function savePerson() {
+  var id   = parseInt(document.getElementById('e-id').value);
+  var name = document.getElementById('e-name').value.trim();
+  var msg  = document.getElementById('edit-msg');
+  if (!name) { showMsg(msg, 'error', 'Name is required.'); return; }
+
+  var idx = state.people.findIndex(function(x) { return x.id === id; });
+  if (idx === -1) { showMsg(msg, 'error', 'Person not found.'); return; }
+
+  state.people[idx].name     = name;
+  state.people[idx].title    = document.getElementById('e-title').value.trim();
+  state.people[idx].group    = document.getElementById('e-level').value;
+  state.people[idx].location = document.getElementById('e-location').value.trim();
+  state.people[idx].email    = document.getElementById('e-email').value.trim();
+  state.people[idx].notes    = document.getElementById('e-notes').value.trim();
+  state.people[idx].isNew    = document.getElementById('e-new').checked;
+
+  nodesDS.update(buildNode(state.people[idx]));
+  saveState();
+  updateStats();
+
+  document.getElementById('drawer-name').textContent     = name;
+  document.getElementById('drawer-subtitle').textContent = state.people[idx].title || 'Saved';
+  showMsg(msg, 'success', 'Saved!');
+}
+
+// ── TOOLBAR ──────────────────────────────────────────────────────────────────
 function fitView() {
   network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
 }
-
 function togglePhysics() {
   physicsOn = !physicsOn;
   network.setOptions({ physics: { enabled: physicsOn } });
-  const btn = document.getElementById('btn-physics');
+  var btn = document.getElementById('btn-physics');
   btn.textContent = physicsOn ? 'Physics ON' : 'Physics OFF';
   btn.classList.toggle('active', physicsOn);
 }
-
 function setHierarchical() {
   network.setOptions({
     layout: { hierarchical: { enabled: true, direction: 'UD', sortMethod: 'directed', levelSeparation: 120, nodeSpacing: 160 } },
@@ -537,9 +550,9 @@ function setHierarchical() {
   });
   physicsOn = false;
   document.getElementById('btn-physics').textContent = 'Physics OFF';
+  document.getElementById('btn-physics').classList.remove('active');
   setTimeout(fitView, 300);
 }
-
 function setFreeLayout() {
   network.setOptions({
     layout: { hierarchical: { enabled: false } },
@@ -551,188 +564,128 @@ function setFreeLayout() {
   network.stabilize(100);
 }
 
-// ── TABS ──────────────────────────────────────────────────────────────────────
-function switchTab(name, btn) {
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
   document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById('tab-' + name).classList.add('active');
-  if (btn) btn.classList.add('active');
+  document.getElementById('tab-btn-' + name).classList.add('active');
   if (name === 'connect' || name === 'remove') refreshDropdowns();
 }
 
 function refreshDropdowns() {
-  const sorted = [...state.people].sort((a, b) => a.name.localeCompare(b.name));
-  const opts = sorted.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-  ['r-from', 'r-to', 'del-person'].forEach(id => {
-    const el = document.getElementById(id);
+  var sorted = state.people.slice().sort(function(a,b) { return a.name.localeCompare(b.name); });
+  var opts = sorted.map(function(p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('');
+  ['r-from','r-to','del-person'].forEach(function(id) {
+    var el = document.getElementById(id);
     if (el) el.innerHTML = opts;
   });
-  const edgeOpts = state.links.map(l => {
-    const from = state.people.find(p => p.id === l.from);
-    const to   = state.people.find(p => p.id === l.to);
-    return `<option value="${l.id}">${from ? from.name : '?'} → ${to ? to.name : '?'} [${l.label}]</option>`;
+  var edgeOpts = state.links.map(function(l) {
+    var fr = state.people.find(function(p) { return p.id === l.from; });
+    var to = state.people.find(function(p) { return p.id === l.to; });
+    return '<option value="' + l.id + '">' + (fr ? fr.name : '?') + ' → ' + (to ? to.name : '?') + ' [' + l.label + ']</option>';
   }).join('');
-  const delEdge = document.getElementById('del-edge');
-  if (delEdge) delEdge.innerHTML = edgeOpts || '<option value="">No relationships</option>';
+  var delEdge = document.getElementById('del-edge');
+  if (delEdge) delEdge.innerHTML = edgeOpts || '<option value="">No links</option>';
 }
 
-// ── ADD PERSON ────────────────────────────────────────────────────────────────
+// ── ADD PERSON ───────────────────────────────────────────────────────────────
 function addPerson() {
-  const name = document.getElementById('p-name').value.trim();
-  const title = document.getElementById('p-title').value.trim();
-  const group = document.getElementById('p-level').value;
-  const location = document.getElementById('p-location').value.trim();
-  const isNew = document.getElementById('p-new').checked;
-  const msg = document.getElementById('add-msg');
-
+  var name     = document.getElementById('p-name').value.trim();
+  var msg      = document.getElementById('add-msg');
   if (!name) { showMsg(msg, 'error', 'Name is required.'); return; }
 
-  const p = { id: state.nextId++, name, title, group, isNew, location };
+  var p = {
+    id:       state.nextId++,
+    name:     name,
+    title:    document.getElementById('p-title').value.trim(),
+    group:    document.getElementById('p-level').value,
+    location: document.getElementById('p-location').value.trim(),
+    email:    document.getElementById('p-email').value.trim(),
+    notes:    document.getElementById('p-notes').value.trim(),
+    isNew:    document.getElementById('p-new').checked,
+  };
   state.people.push(p);
   nodesDS.add(buildNode(p));
   saveState();
   updateStats();
-  showMsg(msg, 'success', `${name} added!`);
-
-  document.getElementById('p-name').value = '';
-  document.getElementById('p-title').value = '';
-  document.getElementById('p-location').value = '';
+  showMsg(msg, 'success', p.name + ' added!');
+  ['p-name','p-title','p-location','p-email','p-notes'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
 }
 
-// ── ADD RELATIONSHIP ──────────────────────────────────────────────────────────
+// ── ADD LINK ─────────────────────────────────────────────────────────────────
 function addRelationship() {
-  const from = parseInt(document.getElementById('r-from').value);
-  const to   = parseInt(document.getElementById('r-to').value);
-  const label = document.getElementById('r-label').value.trim() || 'relates to';
-  const msg = document.getElementById('rel-msg');
-
-  if (from === to) { showMsg(msg, 'error', 'Source and target must be different.'); return; }
-
-  const l = { id: state.nextEdgeId++, from, to, label };
+  var from  = parseInt(document.getElementById('r-from').value);
+  var to    = parseInt(document.getElementById('r-to').value);
+  var label = document.getElementById('r-label').value.trim() || 'relates to';
+  var msg   = document.getElementById('rel-msg');
+  if (from === to) { showMsg(msg, 'error', 'Source and target must differ.'); return; }
+  var l = { id: state.nextEdgeId++, from: from, to: to, label: label };
   state.links.push(l);
   edgesDS.add(buildEdge(l));
   saveState();
   updateStats();
-  showMsg(msg, 'success', 'Relationship added!');
+  showMsg(msg, 'success', 'Link added!');
 }
 
-// ── REMOVE PERSON ─────────────────────────────────────────────────────────────
+// ── REMOVE ───────────────────────────────────────────────────────────────────
 function removePerson() {
-  const id = parseInt(document.getElementById('del-person').value);
-  const msg = document.getElementById('rem-msg');
-  const p = state.people.find(x => x.id === id);
+  var id  = parseInt(document.getElementById('del-person').value);
+  var msg = document.getElementById('rem-msg');
+  var p   = state.people.find(function(x) { return x.id === id; });
   if (!p) return;
-
-  state.people = state.people.filter(x => x.id !== id);
-  const removedEdgeIds = state.links.filter(l => l.from === id || l.to === id).map(l => l.id);
-  state.links = state.links.filter(l => l.from !== id && l.to !== id);
+  state.people = state.people.filter(function(x) { return x.id !== id; });
+  var removedEdges = state.links.filter(function(l) { return l.from === id || l.to === id; }).map(function(l) { return l.id; });
+  state.links = state.links.filter(function(l) { return l.from !== id && l.to !== id; });
   nodesDS.remove(id);
-  edgesDS.remove(removedEdgeIds);
+  edgesDS.remove(removedEdges);
   saveState();
   updateStats();
   refreshDropdowns();
-  showMsg(msg, 'success', `${p.name} removed.`);
+  if (parseInt(document.getElementById('e-id').value) === id) closeDrawer();
+  showMsg(msg, 'success', p.name + ' removed.');
 }
 
-// ── REMOVE RELATIONSHIP ───────────────────────────────────────────────────────
 function removeRelationship() {
-  const id = parseInt(document.getElementById('del-edge').value);
-  const msg = document.getElementById('rem-msg');
-  state.links = state.links.filter(l => l.id !== id);
+  var id  = parseInt(document.getElementById('del-edge').value);
+  var msg = document.getElementById('rem-msg');
+  state.links = state.links.filter(function(l) { return l.id !== id; });
   edgesDS.remove(id);
   saveState();
   updateStats();
   refreshDropdowns();
-  showMsg(msg, 'success', 'Relationship removed.');
+  showMsg(msg, 'success', 'Link removed.');
 }
 
-// ── RESET ─────────────────────────────────────────────────────────────────────
 function resetAll() {
-  if (!confirm('Reset to the original 13 people and 5 relationships?')) return;
+  if (!confirm('Reset to the original 13 people and 5 links?')) return;
   state = { people: JSON.parse(JSON.stringify(DEFAULT_PEOPLE)), links: JSON.parse(JSON.stringify(DEFAULT_LINKS)), nextId: 14, nextEdgeId: 6 };
-  nodesDS.clear();
-  edgesDS.clear();
+  nodesDS.clear(); edgesDS.clear();
   nodesDS.add(state.people.map(buildNode));
   edgesDS.add(state.links.map(buildEdge));
-  saveState();
-  updateStats();
-  setFreeLayout();
+  saveState(); updateStats(); closeDrawer(); setFreeLayout();
 }
 
-// ── EDIT PERSON ──────────────────────────────────────────────────────────────
-function openEditPanel(id) {
-  var p = state.people.find(function(x) { return x.id === id; });
-  if (!p) return;
-  currentEditId = id;
-
-  // Switch to edit tab
-  document.querySelectorAll('.tab-panel').forEach(function(el) { el.classList.remove('active'); });
-  document.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
-  document.getElementById('tab-edit').classList.add('active');
-  document.getElementById('tab-edit-btn').classList.add('active');
-
-  // Populate form
-  document.getElementById('edit-hint').style.display = 'none';
-  document.getElementById('edit-form').style.display = 'block';
-  document.getElementById('edit-title-label').textContent = '✏ ' + p.name;
-  document.getElementById('e-name').value = p.name;
-  document.getElementById('e-title').value = p.title || '';
-  document.getElementById('e-level').value = p.group;
-  document.getElementById('e-location').value = p.location || '';
-  document.getElementById('e-new').checked = !!p.isNew;
-}
-
-function savePerson() {
-  if (!currentEditId) return;
-  var name = document.getElementById('e-name').value.trim();
-  var msg = document.getElementById('edit-msg');
-  if (!name) { showMsg(msg, 'error', 'Name is required.'); return; }
-
-  var idx = state.people.findIndex(function(x) { return x.id === currentEditId; });
-  if (idx === -1) return;
-
-  state.people[idx].name     = name;
-  state.people[idx].title    = document.getElementById('e-title').value.trim();
-  state.people[idx].group    = document.getElementById('e-level').value;
-  state.people[idx].location = document.getElementById('e-location').value.trim();
-  state.people[idx].isNew    = document.getElementById('e-new').checked;
-
-  nodesDS.update(buildNode(state.people[idx]));
-  saveState();
-  updateStats();
-  document.getElementById('edit-title-label').textContent = '✏ ' + name;
-  showMsg(msg, 'success', 'Saved!');
-}
-
-function deselectEdit() {
-  currentEditId = null;
-  document.getElementById('edit-hint').style.display = 'block';
-  document.getElementById('edit-form').style.display = 'none';
-  network.unselectAll();
-}
-
-// ── STATS ─────────────────────────────────────────────────────────────────────
+// ── STATS ────────────────────────────────────────────────────────────────────
 function updateStats() {
-  document.getElementById('stat-people').textContent  = state.people.length;
-  document.getElementById('stat-new').textContent     = state.people.filter(function(p) { return p.isNew; }).length;
-  document.getElementById('stat-edges').textContent   = state.links.length;
+  document.getElementById('stat-people').textContent = state.people.length;
+  document.getElementById('stat-new').textContent    = state.people.filter(function(p) { return p.isNew; }).length;
+  document.getElementById('stat-edges').textContent  = state.links.length;
   var regions = {};
   state.people.forEach(function(p) { if (p.location) regions[p.location] = true; });
   document.getElementById('stat-regions').textContent = Object.keys(regions).length;
 }
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
-window.addEventListener('load', function() {
-  network.fit({ animation: false });
-});
-
-// ── HELPERS ───────────────────────────────────────────────────────────────────
 function showMsg(el, type, text) {
   el.className = 'msg ' + type;
   el.textContent = text;
   el.style.display = 'block';
-  setTimeout(() => { el.style.display = 'none'; }, 3000);
+  setTimeout(function() { el.style.display = 'none'; }, 3000);
 }
+
+updateStats();
 </script>
 </body>
 </html>
