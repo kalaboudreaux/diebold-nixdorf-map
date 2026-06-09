@@ -49,8 +49,8 @@
   }
   .tab-btn {
     flex: 1;
-    padding: 10px 4px;
-    font-size: 12px;
+    padding: 9px 2px;
+    font-size: 11px;
     font-weight: 500;
     border: none;
     background: none;
@@ -60,6 +60,16 @@
     transition: all .15s;
   }
   .tab-btn.active { color: #2471A3; border-bottom-color: #2471A3; }
+  .tab-btn.tab-edit.active { color: #7D3C98; border-bottom-color: #7D3C98; }
+
+  #edit-hint {
+    padding: 28px 20px;
+    text-align: center;
+    color: #aaa;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  #edit-hint .edit-icon { font-size: 28px; margin-bottom: 8px; }
 
   .tab-panel { display: none; padding: 16px; }
   .tab-panel.active { display: block; }
@@ -210,9 +220,10 @@
   </div>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('add')">+ Person</button>
-    <button class="tab-btn" onclick="switchTab('connect')">+ Link</button>
-    <button class="tab-btn" onclick="switchTab('remove')">Remove</button>
+    <button class="tab-btn active" onclick="switchTab('add', this)">+ Person</button>
+    <button class="tab-btn" onclick="switchTab('connect', this)">+ Link</button>
+    <button class="tab-btn" onclick="switchTab('remove', this)">Remove</button>
+    <button class="tab-btn tab-edit" id="tab-edit-btn" onclick="switchTab('edit', this)">✏ Edit</button>
   </div>
 
   <!-- Add Person -->
@@ -286,6 +297,50 @@
     <hr style="margin:16px 0;border:none;border-top:1px solid #eee;">
     <button class="btn btn-secondary" onclick="resetAll()">Reset to Default</button>
     <div id="rem-msg" class="msg"></div>
+  </div>
+
+  <!-- Edit Person -->
+  <div id="tab-edit" class="tab-panel">
+    <div id="edit-hint">
+      <div class="edit-icon">👆</div>
+      Click any person on the map to edit their details.
+    </div>
+    <div id="edit-form" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <span style="font-size:12px;font-weight:700;color:#7D3C98;" id="edit-title-label">Editing</span>
+        <button onclick="deselectEdit()" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:18px;line-height:1;" title="Clear selection">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" id="e-name">
+      </div>
+      <div class="form-group">
+        <label>Title / Role</label>
+        <input type="text" id="e-title">
+      </div>
+      <div class="form-group">
+        <label>Level</label>
+        <select id="e-level">
+          <option value="clevel">C-Level</option>
+          <option value="vp">VP</option>
+          <option value="director">Director</option>
+          <option value="manager">Manager / Sr PM</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" id="e-location" placeholder="e.g. Germany, UK, India">
+      </div>
+      <div class="form-group">
+        <label class="checkbox-row">
+          <input type="checkbox" id="e-new">
+          Mark as NEW contact
+        </label>
+      </div>
+      <button class="btn btn-primary" onclick="savePerson()">Save Changes</button>
+      <div id="edit-msg" class="msg"></div>
+    </div>
   </div>
 
   <!-- Legend -->
@@ -438,19 +493,23 @@ network.on('stabilizationIterationsDone', () => {
   document.getElementById('btn-physics').classList.remove('active');
 });
 
-network.on('click', params => {
-  const bar = document.getElementById('info-bar');
+var currentEditId = null;
+
+network.on('click', function(params) {
+  var bar = document.getElementById('info-bar');
   if (params.nodes.length > 0) {
-    const nid = params.nodes[0];
-    const p = state.people.find(x => x.id === nid);
-    const connEdges = network.getConnectedEdges(nid).map(eid => {
-      const e = state.links.find(x => x.id === eid);
+    var nid = params.nodes[0];
+    var p = state.people.find(function(x) { return x.id === nid; });
+    var connEdges = network.getConnectedEdges(nid).map(function(eid) {
+      var e = state.links.find(function(x) { return x.id === eid; });
       if (!e) return null;
-      const other = state.people.find(x => x.id === (e.from === nid ? e.to : e.from));
-      const dir = e.from === nid ? '→' : '←';
-      return `${dir} <b>${other ? other.name : '?'}</b> <em>(${e.label})</em>`;
+      var other = state.people.find(function(x) { return x.id === (e.from === nid ? e.to : e.from); });
+      var dir = e.from === nid ? '→' : '←';
+      return dir + ' <b>' + (other ? other.name : '?') + '</b> <em>(' + e.label + ')</em>';
     }).filter(Boolean);
-    bar.innerHTML = `<b>${p ? p.name : '?'}</b>${p && p.title ? ' · ' + p.title : ''}${connEdges.length ? '<br>' + connEdges.join(' &nbsp; ') : ''}`;
+    bar.innerHTML = '<b>' + (p ? p.name : '?') + '</b>' + (p && p.title ? ' · ' + p.title : '') + (connEdges.length ? '<br>' + connEdges.join(' &nbsp; ') : '');
+    // Open edit panel
+    openEditPanel(nid);
   } else {
     bar.innerHTML = 'Click a node to see details &nbsp;·&nbsp; Drag to rearrange';
   }
@@ -493,11 +552,11 @@ function setFreeLayout() {
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
-function switchTab(name) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById('tab-' + name).classList.add('active');
-  event.target.classList.add('active');
+  if (btn) btn.classList.add('active');
   if (name === 'connect' || name === 'remove') refreshDropdowns();
 }
 
@@ -598,6 +657,58 @@ function resetAll() {
   saveState();
   updateStats();
   setFreeLayout();
+}
+
+// ── EDIT PERSON ──────────────────────────────────────────────────────────────
+function openEditPanel(id) {
+  var p = state.people.find(function(x) { return x.id === id; });
+  if (!p) return;
+  currentEditId = id;
+
+  // Switch to edit tab
+  document.querySelectorAll('.tab-panel').forEach(function(el) { el.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('tab-edit').classList.add('active');
+  document.getElementById('tab-edit-btn').classList.add('active');
+
+  // Populate form
+  document.getElementById('edit-hint').style.display = 'none';
+  document.getElementById('edit-form').style.display = 'block';
+  document.getElementById('edit-title-label').textContent = '✏ ' + p.name;
+  document.getElementById('e-name').value = p.name;
+  document.getElementById('e-title').value = p.title || '';
+  document.getElementById('e-level').value = p.group;
+  document.getElementById('e-location').value = p.location || '';
+  document.getElementById('e-new').checked = !!p.isNew;
+}
+
+function savePerson() {
+  if (!currentEditId) return;
+  var name = document.getElementById('e-name').value.trim();
+  var msg = document.getElementById('edit-msg');
+  if (!name) { showMsg(msg, 'error', 'Name is required.'); return; }
+
+  var idx = state.people.findIndex(function(x) { return x.id === currentEditId; });
+  if (idx === -1) return;
+
+  state.people[idx].name     = name;
+  state.people[idx].title    = document.getElementById('e-title').value.trim();
+  state.people[idx].group    = document.getElementById('e-level').value;
+  state.people[idx].location = document.getElementById('e-location').value.trim();
+  state.people[idx].isNew    = document.getElementById('e-new').checked;
+
+  nodesDS.update(buildNode(state.people[idx]));
+  saveState();
+  updateStats();
+  document.getElementById('edit-title-label').textContent = '✏ ' + name;
+  showMsg(msg, 'success', 'Saved!');
+}
+
+function deselectEdit() {
+  currentEditId = null;
+  document.getElementById('edit-hint').style.display = 'block';
+  document.getElementById('edit-form').style.display = 'none';
+  network.unselectAll();
 }
 
 // ── STATS ─────────────────────────────────────────────────────────────────────
