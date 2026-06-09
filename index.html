@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diebold Nixdorf — Relationship Map</title>
+<script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    width: 300px;
+    min-width: 300px;
+    background: #fff;
+    border-right: 1px solid #dde1e9;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    box-shadow: 2px 0 8px rgba(0,0,0,.06);
+  }
+
+  .sidebar-header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #eee;
+    background: #1a1a2e;
+    color: white;
+  }
+  .sidebar-header img { height: 28px; margin-bottom: 8px; display: block; }
+  .sidebar-header h2 { font-size: 15px; font-weight: 600; }
+  .sidebar-header p  { font-size: 12px; opacity: .7; margin-top: 3px; }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid #eee;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px 4px;
+    font-size: 12px;
+    font-weight: 500;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #888;
+    border-bottom: 2px solid transparent;
+    transition: all .15s;
+  }
+  .tab-btn.active { color: #2471A3; border-bottom-color: #2471A3; }
+
+  .tab-panel { display: none; padding: 16px; }
+  .tab-panel.active { display: block; }
+
+  .form-group { margin-bottom: 12px; }
+  label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 4px; }
+  input[type=text], select, textarea {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #1a1a2e;
+    background: #fafafa;
+    transition: border .15s;
+  }
+  input[type=text]:focus, select:focus {
+    outline: none;
+    border-color: #2471A3;
+    background: #fff;
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #444;
+    cursor: pointer;
+  }
+  .checkbox-row input { width: auto; }
+
+  .btn {
+    width: 100%;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: #2471A3; color: white; }
+  .btn-primary:hover { background: #1A5276; }
+  .btn-danger  { background: #fff; color: #c0392b; border: 1px solid #c0392b; margin-top: 8px; }
+  .btn-danger:hover  { background: #fdf2f2; }
+  .btn-secondary { background: #f5f5f5; color: #555; border: 1px solid #ddd; margin-top: 8px; }
+  .btn-secondary:hover { background: #eee; }
+
+  .msg { font-size: 12px; padding: 6px 10px; border-radius: 5px; margin-top: 8px; display: none; }
+  .msg.success { background: #e8f8f0; color: #1e8449; }
+  .msg.error   { background: #fdf2f2; color: #c0392b; }
+
+  .legend { padding: 14px 16px; border-top: 1px solid #eee; font-size: 12px; }
+  .legend h4 { font-size: 12px; font-weight: 700; color: #555; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .05em; }
+  .legend-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+  .dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+  /* ── Main area ── */
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #topbar {
+    background: #fff;
+    border-bottom: 1px solid #dde1e9;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  #topbar h1 { font-size: 16px; font-weight: 700; color: #1a1a2e; }
+  #topbar .subtitle { font-size: 12px; color: #888; }
+
+  .toolbar-btns { display: flex; gap: 8px; }
+  .tb-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    color: #444;
+    transition: all .15s;
+  }
+  .tb-btn:hover { background: #f0f2f5; border-color: #aaa; }
+  .tb-btn.active { background: #2471A3; color: white; border-color: #2471A3; }
+
+  #network {
+    flex: 1;
+    background: #fff;
+    position: relative;
+  }
+
+  #info-bar {
+    position: absolute;
+    bottom: 12px;
+    left: 16px;
+    background: rgba(255,255,255,.92);
+    border: 1px solid #dde1e9;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: #555;
+    max-width: 340px;
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+    z-index: 10;
+  }
+  #info-bar b { color: #1a1a2e; }
+
+  #stats-bar {
+    background: #fff;
+    border-top: 1px solid #dde1e9;
+    display: flex;
+    padding: 8px 20px;
+    gap: 24px;
+  }
+  .stat { font-size: 12px; color: #888; }
+  .stat b { color: #1a1a2e; font-size: 14px; }
+
+  /* ── Scrollbar ── */
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 4px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    #sidebar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ────────────────────────────────────────────── -->
+<aside id="sidebar">
+  <div class="sidebar-header">
+    <h2>Diebold Nixdorf</h2>
+    <p>Relationship Map</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('add')">+ Person</button>
+    <button class="tab-btn" onclick="switchTab('connect')">+ Link</button>
+    <button class="tab-btn" onclick="switchTab('remove')">Remove</button>
+  </div>
+
+  <!-- Add Person -->
+  <div id="tab-add" class="tab-panel active">
+    <div class="form-group">
+      <label>Full Name *</label>
+      <input type="text" id="p-name" placeholder="e.g. Jane Smith">
+    </div>
+    <div class="form-group">
+      <label>Title / Role</label>
+      <input type="text" id="p-title" placeholder="e.g. VP of Sales">
+    </div>
+    <div class="form-group">
+      <label>Level</label>
+      <select id="p-level">
+        <option value="clevel">C-Level</option>
+        <option value="vp" selected>VP</option>
+        <option value="director">Director</option>
+        <option value="manager">Manager / Sr PM</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Location</label>
+      <input type="text" id="p-location" placeholder="e.g. Germany, UK, India">
+    </div>
+    <div class="form-group">
+      <label class="checkbox-row">
+        <input type="checkbox" id="p-new" checked>
+        Mark as NEW contact
+      </label>
+    </div>
+    <button class="btn btn-primary" onclick="addPerson()">Add Person</button>
+    <div id="add-msg" class="msg"></div>
+  </div>
+
+  <!-- Add Relationship -->
+  <div id="tab-connect" class="tab-panel">
+    <div class="form-group">
+      <label>From (source)</label>
+      <select id="r-from"></select>
+    </div>
+    <div class="form-group">
+      <label>To (target)</label>
+      <select id="r-to"></select>
+    </div>
+    <div class="form-group">
+      <label>Relationship label</label>
+      <input type="text" id="r-label" value="reports to">
+    </div>
+    <button class="btn btn-primary" onclick="addRelationship()">Add Relationship</button>
+    <div id="rel-msg" class="msg"></div>
+  </div>
+
+  <!-- Remove -->
+  <div id="tab-remove" class="tab-panel">
+    <div class="form-group">
+      <label>Remove Person</label>
+      <select id="del-person"></select>
+    </div>
+    <button class="btn btn-danger" onclick="removePerson()">Remove Person</button>
+
+    <hr style="margin:16px 0;border:none;border-top:1px solid #eee;">
+
+    <div class="form-group">
+      <label>Remove Relationship</label>
+      <select id="del-edge"></select>
+    </div>
+    <button class="btn btn-danger" onclick="removeRelationship()">Remove Relationship</button>
+
+    <hr style="margin:16px 0;border:none;border-top:1px solid #eee;">
+    <button class="btn btn-secondary" onclick="resetAll()">Reset to Default</button>
+    <div id="rem-msg" class="msg"></div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend" style="margin-top:auto;">
+    <h4>Legend</h4>
+    <div class="legend-row"><div class="dot" style="background:#C0392B"></div> C-Level</div>
+    <div class="legend-row"><div class="dot" style="background:#2471A3"></div> VP</div>
+    <div class="legend-row"><div class="dot" style="background:#1E8449"></div> Director</div>
+    <div class="legend-row"><div class="dot" style="background:#7D3C98"></div> Manager / Sr PM</div>
+    <div class="legend-row"><div class="dot" style="background:#D4AC0D"></div> Other</div>
+    <div style="margin-top:8px;font-size:11px;color:#999;">⭐ = NEW contact &nbsp;·&nbsp; Drag nodes to rearrange</div>
+  </div>
+</aside>
+
+<!-- ── MAIN ───────────────────────────────────────────────── -->
+<div id="main">
+  <div id="topbar">
+    <div>
+      <h1>Diebold Nixdorf — Relationship Map</h1>
+      <div class="subtitle">Drag nodes to rearrange · Use sidebar to add or remove people</div>
+    </div>
+    <div class="toolbar-btns">
+      <button class="tb-btn" onclick="fitView()">Fit View</button>
+      <button class="tb-btn" id="btn-physics" onclick="togglePhysics()">Physics ON</button>
+      <button class="tb-btn" onclick="setHierarchical()">Hierarchical</button>
+      <button class="tb-btn" onclick="setFreeLayout()">Free Layout</button>
+    </div>
+  </div>
+
+  <div id="network" style="position:relative;">
+    <div id="info-bar">Click a node to see details &nbsp;·&nbsp; Drag to rearrange</div>
+  </div>
+
+  <div id="stats-bar">
+    <div class="stat">People: <b id="stat-people">0</b></div>
+    <div class="stat">NEW contacts: <b id="stat-new">0</b></div>
+    <div class="stat">Relationships: <b id="stat-edges">0</b></div>
+    <div class="stat">Regions: <b id="stat-regions">0</b></div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const COLORS = {
+  clevel:   { bg: '#C0392B', border: '#922B21', text: '#fff' },
+  vp:       { bg: '#2471A3', border: '#1A5276', text: '#fff' },
+  director: { bg: '#1E8449', border: '#145A32', text: '#fff' },
+  manager:  { bg: '#7D3C98', border: '#6C3483', text: '#fff' },
+  other:    { bg: '#D4AC0D', border: '#B7950B', text: '#1a1a1a' },
+};
+
+const DEFAULT_PEOPLE = [
+  { id:1,  name:'Raj Singh',     title:'CIO',                                           group:'clevel',   isNew:true,  location:'' },
+  { id:2,  name:'Andy Zosel',    title:'VP, Chief Product & Technology Officer (CPTO)', group:'vp',       isNew:true,  location:'' },
+  { id:3,  name:'Arvin Jawa',    title:'VP, Global Retail Strategy and Marketing',      group:'vp',       isNew:false, location:'' },
+  { id:4,  name:'Michele Riley', title:'VP Global Software and Services Delivery',      group:'vp',       isNew:false, location:'' },
+  { id:5,  name:'Jerome Amara',  title:'VP Banking Automation Solutions',               group:'vp',       isNew:false, location:'' },
+  { id:6,  name:'Michael Engel', title:'VP Software, Managed Services and R&D',         group:'vp',       isNew:false, location:'Germany' },
+  { id:7,  name:'Bruce Diesel',  title:'Director, Product Mgmt – Branch & Cash Auto.',  group:'director', isNew:false, location:'' },
+  { id:8,  name:'Ken',           title:'VP',                                            group:'vp',       isNew:false, location:'' },
+  { id:9,  name:'Bruce (Sr PM)', title:'Senior Product Manager',                        group:'manager',  isNew:false, location:'' },
+  { id:10, name:'Wolfgang',      title:'Technical Lead',                                group:'manager',  isNew:false, location:'Germany' },
+  { id:11, name:'Bruce (UK)',    title:'UK Champion',                                   group:'manager',  isNew:false, location:'UK' },
+  { id:12, name:'Kiru',          title:'India Team',                                    group:'manager',  isNew:false, location:'India' },
+  { id:13, name:'Jomy',          title:'Manager, India – BVA Discussion',               group:'manager',  isNew:false, location:'India' },
+];
+
+const DEFAULT_LINKS = [
+  { id:1, from:2,  to:1,  label:'reports to' },
+  { id:2, from:4,  to:2,  label:'reports to' },
+  { id:3, from:10, to:6,  label:'reports to' },
+  { id:4, from:11, to:6,  label:'champions'  },
+  { id:5, from:12, to:13, label:'reports to' },
+];
+
+// ── STATE (localStorage-backed) ───────────────────────────────────────────────
+function loadState() {
+  try {
+    const s = localStorage.getItem('dn_map_v2');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return { people: JSON.parse(JSON.stringify(DEFAULT_PEOPLE)), links: JSON.parse(JSON.stringify(DEFAULT_LINKS)), nextId: 14, nextEdgeId: 6 };
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('dn_map_v2', JSON.stringify(state));
+  } catch(e) {}
+}
+
+let state = loadState();
+
+// ── VIS.JS SETUP ──────────────────────────────────────────────────────────────
+function buildNode(p) {
+  const c = COLORS[p.group] || COLORS.other;
+  const label = (p.isNew ? '⭐ ' : '') + p.name + (p.location ? '\n📍 ' + p.location : '');
+  const tooltip = `<div style="padding:6px 10px;font-size:13px;line-height:1.6;max-width:220px;">
+    <b>${p.name}</b><br>
+    <span style="color:#666">${p.title || '—'}</span>
+    ${p.location ? '<br>📍 ' + p.location : ''}
+    ${p.isNew ? '<br><span style="color:#e67e22;font-weight:600">⭐ NEW Contact</span>' : ''}
+  </div>`;
+  return {
+    id: p.id,
+    label,
+    title: tooltip,
+    color: { background: c.bg, border: c.border, highlight: { background: c.bg, border: '#000' } },
+    font: { color: c.text, size: 13, face: '-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' },
+    shape: 'box',
+    margin: 10,
+    widthConstraint: { minimum: 140, maximum: 220 },
+    shadow: { enabled: true, color: 'rgba(0,0,0,0.12)', size: 5, x: 2, y: 2 },
+  };
+}
+
+function buildEdge(l) {
+  return {
+    id: l.id,
+    from: l.from,
+    to: l.to,
+    label: l.label,
+    arrows: 'to',
+    color: { color: '#999', highlight: '#333' },
+    font: { size: 11, color: '#666', align: 'middle', background: '#fff' },
+    smooth: { type: 'curvedCW', roundness: 0.15 },
+  };
+}
+
+const container = document.getElementById('network');
+const nodesDS = new vis.DataSet(state.people.map(buildNode));
+const edgesDS = new vis.DataSet(state.links.map(buildEdge));
+
+let physicsOn = true;
+const network = new vis.Network(container, { nodes: nodesDS, edges: edgesDS }, {
+  nodes: { borderWidth: 2 },
+  edges: { width: 1.5 },
+  physics: {
+    enabled: true,
+    barnesHut: { gravitationalConstant: -8000, centralGravity: 0.3, springLength: 180, springConstant: 0.04, damping: 0.09 },
+    stabilization: { iterations: 150 },
+  },
+  interaction: { dragNodes: true, dragView: true, zoomView: true, hover: true, tooltipDelay: 200 },
+  layout: { improvedLayout: true },
+});
+
+network.on('stabilizationIterationsDone', () => {
+  network.setOptions({ physics: { enabled: false } });
+  physicsOn = false;
+  document.getElementById('btn-physics').textContent = 'Physics OFF';
+  document.getElementById('btn-physics').classList.remove('active');
+});
+
+network.on('click', params => {
+  const bar = document.getElementById('info-bar');
+  if (params.nodes.length > 0) {
+    const nid = params.nodes[0];
+    const p = state.people.find(x => x.id === nid);
+    const connEdges = network.getConnectedEdges(nid).map(eid => {
+      const e = state.links.find(x => x.id === eid);
+      if (!e) return null;
+      const other = state.people.find(x => x.id === (e.from === nid ? e.to : e.from));
+      const dir = e.from === nid ? '→' : '←';
+      return `${dir} <b>${other ? other.name : '?'}</b> <em>(${e.label})</em>`;
+    }).filter(Boolean);
+    bar.innerHTML = `<b>${p ? p.name : '?'}</b>${p && p.title ? ' · ' + p.title : ''}${connEdges.length ? '<br>' + connEdges.join(' &nbsp; ') : ''}`;
+  } else {
+    bar.innerHTML = 'Click a node to see details &nbsp;·&nbsp; Drag to rearrange';
+  }
+});
+
+updateStats();
+
+// ── TOOLBAR ───────────────────────────────────────────────────────────────────
+function fitView() {
+  network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+}
+
+function togglePhysics() {
+  physicsOn = !physicsOn;
+  network.setOptions({ physics: { enabled: physicsOn } });
+  const btn = document.getElementById('btn-physics');
+  btn.textContent = physicsOn ? 'Physics ON' : 'Physics OFF';
+  btn.classList.toggle('active', physicsOn);
+}
+
+function setHierarchical() {
+  network.setOptions({
+    layout: { hierarchical: { enabled: true, direction: 'UD', sortMethod: 'directed', levelSeparation: 120, nodeSpacing: 160 } },
+    physics: { enabled: false },
+  });
+  physicsOn = false;
+  document.getElementById('btn-physics').textContent = 'Physics OFF';
+  setTimeout(fitView, 300);
+}
+
+function setFreeLayout() {
+  network.setOptions({
+    layout: { hierarchical: { enabled: false } },
+    physics: { enabled: true, barnesHut: { gravitationalConstant: -8000, centralGravity: 0.3, springLength: 180 } },
+  });
+  physicsOn = true;
+  document.getElementById('btn-physics').textContent = 'Physics ON';
+  document.getElementById('btn-physics').classList.add('active');
+  network.stabilize(100);
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'connect' || name === 'remove') refreshDropdowns();
+}
+
+function refreshDropdowns() {
+  const sorted = [...state.people].sort((a, b) => a.name.localeCompare(b.name));
+  const opts = sorted.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  ['r-from', 'r-to', 'del-person'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = opts;
+  });
+  const edgeOpts = state.links.map(l => {
+    const from = state.people.find(p => p.id === l.from);
+    const to   = state.people.find(p => p.id === l.to);
+    return `<option value="${l.id}">${from ? from.name : '?'} → ${to ? to.name : '?'} [${l.label}]</option>`;
+  }).join('');
+  const delEdge = document.getElementById('del-edge');
+  if (delEdge) delEdge.innerHTML = edgeOpts || '<option value="">No relationships</option>';
+}
+
+// ── ADD PERSON ────────────────────────────────────────────────────────────────
+function addPerson() {
+  const name = document.getElementById('p-name').value.trim();
+  const title = document.getElementById('p-title').value.trim();
+  const group = document.getElementById('p-level').value;
+  const location = document.getElementById('p-location').value.trim();
+  const isNew = document.getElementById('p-new').checked;
+  const msg = document.getElementById('add-msg');
+
+  if (!name) { showMsg(msg, 'error', 'Name is required.'); return; }
+
+  const p = { id: state.nextId++, name, title, group, isNew, location };
+  state.people.push(p);
+  nodesDS.add(buildNode(p));
+  saveState();
+  updateStats();
+  showMsg(msg, 'success', `${name} added!`);
+
+  document.getElementById('p-name').value = '';
+  document.getElementById('p-title').value = '';
+  document.getElementById('p-location').value = '';
+}
+
+// ── ADD RELATIONSHIP ──────────────────────────────────────────────────────────
+function addRelationship() {
+  const from = parseInt(document.getElementById('r-from').value);
+  const to   = parseInt(document.getElementById('r-to').value);
+  const label = document.getElementById('r-label').value.trim() || 'relates to';
+  const msg = document.getElementById('rel-msg');
+
+  if (from === to) { showMsg(msg, 'error', 'Source and target must be different.'); return; }
+
+  const l = { id: state.nextEdgeId++, from, to, label };
+  state.links.push(l);
+  edgesDS.add(buildEdge(l));
+  saveState();
+  updateStats();
+  showMsg(msg, 'success', 'Relationship added!');
+}
+
+// ── REMOVE PERSON ─────────────────────────────────────────────────────────────
+function removePerson() {
+  const id = parseInt(document.getElementById('del-person').value);
+  const msg = document.getElementById('rem-msg');
+  const p = state.people.find(x => x.id === id);
+  if (!p) return;
+
+  state.people = state.people.filter(x => x.id !== id);
+  const removedEdgeIds = state.links.filter(l => l.from === id || l.to === id).map(l => l.id);
+  state.links = state.links.filter(l => l.from !== id && l.to !== id);
+  nodesDS.remove(id);
+  edgesDS.remove(removedEdgeIds);
+  saveState();
+  updateStats();
+  refreshDropdowns();
+  showMsg(msg, 'success', `${p.name} removed.`);
+}
+
+// ── REMOVE RELATIONSHIP ───────────────────────────────────────────────────────
+function removeRelationship() {
+  const id = parseInt(document.getElementById('del-edge').value);
+  const msg = document.getElementById('rem-msg');
+  state.links = state.links.filter(l => l.id !== id);
+  edgesDS.remove(id);
+  saveState();
+  updateStats();
+  refreshDropdowns();
+  showMsg(msg, 'success', 'Relationship removed.');
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────────
+function resetAll() {
+  if (!confirm('Reset to the original 13 people and 5 relationships?')) return;
+  state = { people: JSON.parse(JSON.stringify(DEFAULT_PEOPLE)), links: JSON.parse(JSON.stringify(DEFAULT_LINKS)), nextId: 14, nextEdgeId: 6 };
+  nodesDS.clear();
+  edgesDS.clear();
+  nodesDS.add(state.people.map(buildNode));
+  edgesDS.add(state.links.map(buildEdge));
+  saveState();
+  updateStats();
+  setFreeLayout();
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('stat-people').textContent  = state.people.length;
+  document.getElementById('stat-new').textContent     = state.people.filter(p => p.isNew).length;
+  document.getElementById('stat-edges').textContent   = state.links.length;
+  const regions = new Set(state.people.map(p => p.location).filter(Boolean));
+  document.getElementById('stat-regions').textContent = regions.size;
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function showMsg(el, type, text) {
+  el.className = 'msg ' + type;
+  el.textContent = text;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+</script>
+</body>
+</html>
