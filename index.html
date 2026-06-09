@@ -8,6 +8,10 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #f0f2f5;
@@ -118,6 +122,7 @@
   /* ── Main area ── */
   #main {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -152,10 +157,10 @@
 
   #network {
     flex: 1;
-    min-height: 400px;
-    height: calc(100vh - 106px);
+    min-height: 0;
     background: #fff;
     position: relative;
+    overflow: hidden;
   }
 
   #info-bar {
