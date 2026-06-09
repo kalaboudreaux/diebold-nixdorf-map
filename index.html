@@ -152,6 +152,8 @@
 
   #network {
     flex: 1;
+    min-height: 400px;
+    height: calc(100vh - 106px);
     background: #fff;
     position: relative;
   }
@@ -596,11 +598,17 @@ function resetAll() {
 // ── STATS ─────────────────────────────────────────────────────────────────────
 function updateStats() {
   document.getElementById('stat-people').textContent  = state.people.length;
-  document.getElementById('stat-new').textContent     = state.people.filter(p => p.isNew).length;
+  document.getElementById('stat-new').textContent     = state.people.filter(function(p) { return p.isNew; }).length;
   document.getElementById('stat-edges').textContent   = state.links.length;
-  const regions = new Set(state.people.map(p => p.location).filter(Boolean));
-  document.getElementById('stat-regions').textContent = regions.size;
+  var regions = {};
+  state.people.forEach(function(p) { if (p.location) regions[p.location] = true; });
+  document.getElementById('stat-regions').textContent = Object.keys(regions).length;
 }
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('load', function() {
+  network.fit({ animation: false });
+});
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function showMsg(el, type, text) {
